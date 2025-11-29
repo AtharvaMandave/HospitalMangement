@@ -4,6 +4,49 @@ import { validatePatientData, cleanAadhar } from '../utils/validators.js';
 import path from 'path';
 
 /**
+ * Helper function to process a batch of patients
+ * @param {Array} patients - Array of patient data objects
+ * @returns {Promise<Object>} Summary of processing
+ */
+const processPatientBatch = async (patients) => {
+    let newPatientsCount = 0;
+    let updatedPatientsCount = 0;
+    const processingErrors = [];
+
+    for (const patientData of patients) {
+        try {
+            // Check if patient exists
+            const existingPatient = await PatientModel.findByAadhar(patientData.AADHAR_NO);
+
+            if (existingPatient) {
+                // Patient exists - update department visit
+                await PatientModel.updateDepartmentVisit(
+                    patientData.AADHAR_NO,
+                    patientData.DEPARTMENT_VISITED
+                );
+                updatedPatientsCount++;
+            } else {
+                // New patient - create record
+                await PatientModel.createPatient(patientData);
+                newPatientsCount++;
+            }
+        } catch (error) {
+            console.error(`❌ Error processing patient ${patientData.AADHAR_NO}:`, error.message);
+            processingErrors.push({
+                aadhar: patientData.AADHAR_NO,
+                error: error.message
+            });
+        }
+    }
+
+    return {
+        newPatientsCount,
+        updatedPatientsCount,
+        processingErrors
+    };
+};
+
+/**
  * Upload and process file containing patient visit records
  * POST /api/uploadFile
  */
@@ -37,36 +80,9 @@ export const uploadFile = async (req, res, next) => {
 
         const { patients, errors, summary } = parseResult;
 
-        // Process each patient record
-        let newPatientsCount = 0;
-        let updatedPatientsCount = 0;
-        const processingErrors = [];
-
-        for (const patientData of patients) {
-            try {
-                // Check if patient exists
-                const existingPatient = await PatientModel.findByAadhar(patientData.AADHAR_NO);
-
-                if (existingPatient) {
-                    // Patient exists - update department visit
-                    await PatientModel.updateDepartmentVisit(
-                        patientData.AADHAR_NO,
-                        patientData.DEPARTMENT_VISITED
-                    );
-                    updatedPatientsCount++;
-                } else {
-                    // New patient - create record
-                    await PatientModel.createPatient(patientData);
-                    newPatientsCount++;
-                }
-            } catch (error) {
-                console.error(`❌ Error processing patient ${patientData.AADHAR_NO}:`, error.message);
-                processingErrors.push({
-                    aadhar: patientData.AADHAR_NO,
-                    error: error.message
-                });
-            }
-        }
+        // Process patients using helper
+        const processingResult = await processPatientBatch(patients);
+        const { newPatientsCount, updatedPatientsCount, processingErrors } = processingResult;
 
         console.log(`✅ File processing complete. New: ${newPatientsCount}, Updated: ${updatedPatientsCount}`);
 
@@ -87,6 +103,85 @@ export const uploadFile = async (req, res, next) => {
         });
     } catch (error) {
         console.error('❌ Error in uploadFile:', error);
+        next(error);
+    }
+};
+
+/**
+ * Add multiple patient visit records
+ * POST /api/addBulkVisits
+ */
+export const addBulkVisits = async (req, res, next) => {
+    try {
+        const { patients } = req.body;
+
+        if (!Array.isArray(patients) || patients.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid data. Expected an array of patients.'
+            });
+        }
+
+        console.log(`📝 Processing bulk manual entry: ${patients.length} records`);
+
+        // Validate and clean data before processing
+        const validPatients = [];
+        const validationErrors = [];
+
+        patients.forEach((p, index) => {
+            const patientData = {
+                AADHAR_NO: cleanAadhar(p.AADHAR_NO || p.aadhar || ''),
+                NAME: p.NAME || p.name,
+                AGE: p.AGE || p.age,
+                GENDER: p.GENDER || p.gender,
+                ADDRESS: p.ADDRESS || p.address,
+                PHONE: p.PHONE || p.phone,
+                DEPARTMENT_VISITED: p.DEPARTMENT_VISITED || p.department
+            };
+
+            const validation = validatePatientData(patientData);
+            if (validation.valid) {
+                validPatients.push(patientData);
+            } else {
+                validationErrors.push({
+                    index,
+                    aadhar: patientData.AADHAR_NO,
+                    errors: validation.errors
+                });
+            }
+        });
+
+        if (validPatients.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No valid patient records found',
+                errors: validationErrors
+            });
+        }
+
+        // Process valid patients
+        const processingResult = await processPatientBatch(validPatients);
+        const { newPatientsCount, updatedPatientsCount, processingErrors } = processingResult;
+
+        console.log(`✅ Bulk processing complete. New: ${newPatientsCount}, Updated: ${updatedPatientsCount}`);
+
+        res.status(200).json({
+            success: true,
+            message: 'Bulk records processed successfully',
+            summary: {
+                totalReceived: patients.length,
+                validRecords: validPatients.length,
+                invalidRecords: validationErrors.length,
+                newPatients: newPatientsCount,
+                updatedPatients: updatedPatientsCount,
+                processingErrors: processingErrors.length
+            },
+            validationErrors: validationErrors.length > 0 ? validationErrors : undefined,
+            processingErrors: processingErrors.length > 0 ? processingErrors : undefined
+        });
+
+    } catch (error) {
+        console.error('❌ Error in addBulkVisits:', error);
         next(error);
     }
 };
@@ -150,48 +245,6 @@ export const addVisit = async (req, res, next) => {
 };
 
 /**
- * Get patient details by Aadhar number
- * GET /api/patient/:aadhar
- */
-export const getPatientByAadhar = async (req, res, next) => {
-    try {
-        const aadhar = cleanAadhar(req.params.aadhar);
-
-        // Validate Aadhar format
-        if (aadhar.length !== 12) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid Aadhar number. Must be 12 digits.'
-            });
-        }
-
-        // Find patient
-        const patient = await PatientModel.findByAadhar(aadhar);
-
-        if (!patient) {
-            return res.status(404).json({
-                success: false,
-                message: 'Patient not found'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: patient
-        });
-    } catch (error) {
-        console.error('❌ Error in getPatientByAadhar:', error);
-        next(error);
-    }
-};
-
-/**
- * Get all patients
- * GET /api/allPatients
- */
-export const getAllPatients = async (req, res, next) => {
-    try {
-        const patients = await PatientModel.getAllPatients();
 
         res.status(200).json({
             success: true,
@@ -220,6 +273,73 @@ export const getStats = async (req, res, next) => {
         });
     } catch (error) {
         console.error('❌ Error in getStats:', error);
+        next(error);
+    }
+};
+
+/**
+ * Get patients sorted by visit count (most frequent visitors first)
+ * GET /api/patients/sort/by-visits
+ */
+export const getPatientsByVisits = async (req, res, next) => {
+    try {
+        const patients = await PatientModel.getPatientsByVisitCount();
+
+        res.status(200).json({
+            success: true,
+            count: patients.length,
+            data: patients
+        });
+    } catch (error) {
+        console.error('❌ Error in getPatientsByVisits:', error);
+        next(error);
+    }
+};
+
+/**
+ * Get patients created today
+ * GET /api/patients/today
+ */
+export const getTodaysPatients = async (req, res, next) => {
+    try {
+        const patients = await PatientModel.getTodaysPatients();
+
+        res.status(200).json({
+            success: true,
+            count: patients.length,
+            data: patients
+        });
+    } catch (error) {
+        console.error('❌ Error in getTodaysPatients:', error);
+        next(error);
+    }
+};
+
+/**
+ * Get patients by date range
+ * GET /api/patients/date-range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+ */
+export const getPatientsByDateRange = async (req, res, next) => {
+    try {
+        console.log('🚀 getPatientsByDateRange called with', req.query);
+        const { startDate, endDate } = req.query;
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'Both startDate and endDate are required'
+            });
+        }
+
+        const patients = await PatientModel.getPatientsByDateRange(startDate, endDate);
+
+        res.status(200).json({
+            success: true,
+            count: patients.length,
+            data: patients
+        });
+    } catch (error) {
+        console.error('❌ Error in getPatientsByDateRange:', error);
         next(error);
     }
 };

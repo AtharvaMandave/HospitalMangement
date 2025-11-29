@@ -28,6 +28,16 @@ router.post(
 );
 
 /**
+ * @route   POST /api/addBulkVisits
+ * @desc    Add multiple patient visit records
+ * @access  Public
+ */
+router.post(
+    '/addBulkVisits',
+    asyncHandler(patientController.addBulkVisits)
+);
+
+/**
  * @route   GET /api/patient/:aadhar
  * @desc    Get patient details by Aadhar number
  * @access  Public
@@ -35,6 +45,16 @@ router.post(
 router.get(
     '/patient/:aadhar',
     asyncHandler(patientController.getPatientByAadhar)
+);
+
+/**
+ * @route   GET /api/patient/id/:id
+ * @desc    Get patient details by Patient ID
+ * @access  Public
+ */
+router.get(
+    '/patient/id/:id',
+    asyncHandler(patientController.getPatientById)
 );
 
 /**
@@ -55,6 +75,36 @@ router.get(
 router.get(
     '/stats',
     asyncHandler(patientController.getStats)
+);
+
+/**
+ * @route   GET /api/patients/date-range
+ * @desc    Get patients by date range
+ * @access  Public
+ */
+router.get(
+    '/patients/date-range',
+    asyncHandler(patientController.getPatientsByDateRange)
+);
+
+/**
+ * @route   GET /api/patients/today
+ * @desc    Get patients created today
+ * @access  Public
+ */
+router.get(
+    '/patients/today',
+    asyncHandler(patientController.getTodaysPatients)
+);
+
+/**
+ * @route   GET /api/patients/sort/by-visits
+ * @desc    Get patients sorted by visit count (most frequent first)
+ * @access  Public
+ */
+router.get(
+    '/patients/sort/by-visits',
+    asyncHandler(patientController.getPatientsByVisits)
 );
 
 export default router;

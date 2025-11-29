@@ -13,10 +13,25 @@ export const findByAadhar = async (aadhar) => {
     try {
         const sql = 'SELECT * FROM PATIENT_MASTER WHERE AADHAR_NO = ?';
         const result = await executeQuery(sql, [aadhar]);
-
         return result.length > 0 ? result[0] : null;
     } catch (error) {
         console.error('❌ Error in findByAadhar:', error);
+        throw error;
+    }
+};
+
+/**
+ * Find patient by Patient ID
+ * @param {string} patientId - Patient ID
+ * @returns {Promise<Object|null>} Patient object or null if not found
+ */
+export const findByPatientId = async (patientId) => {
+    try {
+        const sql = 'SELECT * FROM PATIENT_MASTER WHERE PATIENT_ID = ?';
+        const result = await executeQuery(sql, [patientId]);
+        return result.length > 0 ? result[0] : null;
+    } catch (error) {
+        console.error('❌ Error in findByPatientId:', error);
         throw error;
     }
 };
@@ -30,10 +45,9 @@ export const createPatient = async (patientData) => {
     try {
         const sql = `
       INSERT INTO PATIENT_MASTER 
-      (AADHAR_NO, NAME, AGE, GENDER, ADDRESS, PHONE, DEPARTMENT_VISITED) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      (AADHAR_NO, NAME, AGE, GENDER, ADDRESS, PHONE, DEPARTMENT_VISITED, VISIT_COUNT) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, 1)
     `;
-
         const params = [
             patientData.AADHAR_NO,
             patientData.NAME,
@@ -43,10 +57,8 @@ export const createPatient = async (patientData) => {
             patientData.PHONE || null,
             patientData.DEPARTMENT_VISITED
         ];
-
         await executeNonQuery(sql, params);
-
-        // Fetch and return the created record
+        // Return the newly created patient
         return await findByAadhar(patientData.AADHAR_NO);
     } catch (error) {
         console.error('❌ Error in createPatient:', error);
@@ -56,39 +68,31 @@ export const createPatient = async (patientData) => {
 
 /**
  * Update department visit history for existing patient
- * Appends new department to existing comma-separated list
- * @param {string} aadhar - 12-digit Aadhar number
+ * Appends new department to existing comma‑separated list and increments VISIT_COUNT
+ * @param {string} aadhar - 12‑digit Aadhar number
  * @param {string} newDepartment - Department to append
  * @returns {Promise<Object>} Updated patient record
  */
 export const updateDepartmentVisit = async (aadhar, newDepartment) => {
     try {
-        // First, check if the department already exists in the visit history
         const existingPatient = await findByAadhar(aadhar);
-
         if (!existingPatient) {
             throw new Error('Patient not found');
         }
-
-        // Check if department already exists in the visit history
         const existingDepartments = existingPatient.DEPARTMENT_VISITED || '';
         const departmentList = existingDepartments.split(',').map(d => d.trim());
-
-        // Only append if department is not already in the list
         if (!departmentList.includes(newDepartment.trim())) {
             const sql = `
         UPDATE PATIENT_MASTER 
-        SET DEPARTMENT_VISITED = DEPARTMENT_VISITED || ', ' || ?
+        SET DEPARTMENT_VISITED = DEPARTMENT_VISITED || ', ' || ?,
+            VISIT_COUNT = VISIT_COUNT + 1
         WHERE AADHAR_NO = ?
       `;
-
             await executeNonQuery(sql, [newDepartment, aadhar]);
             console.log(`✅ Updated department visit for Aadhar ${aadhar}: Added ${newDepartment}`);
         } else {
-            console.log(`ℹ️ Department ${newDepartment} already exists for Aadhar ${aadhar}, skipping`);
+            console.log(`ℹ️ Department ${newDepartment} already exists for Aadhar ${aadhar}`);
         }
-
-        // Fetch and return the updated record
         return await findByAadhar(aadhar);
     } catch (error) {
         console.error('❌ Error in updateDepartmentVisit:', error);
@@ -98,14 +102,12 @@ export const updateDepartmentVisit = async (aadhar, newDepartment) => {
 
 /**
  * Get all patients ordered by Aadhar number
- * @returns {Promise<Array>} Array of all patient records
+ * @returns {Promise<Array>} Array of patient records
  */
 export const getAllPatients = async () => {
     try {
         const sql = 'SELECT * FROM PATIENT_MASTER ORDER BY AADHAR_NO';
-        const result = await executeQuery(sql);
-
-        return result;
+        return await executeQuery(sql);
     } catch (error) {
         console.error('❌ Error in getAllPatients:', error);
         throw error;
@@ -113,15 +115,14 @@ export const getAllPatients = async () => {
 };
 
 /**
- * Delete a patient by Aadhar (for testing/admin purposes)
- * @param {string} aadhar - 12-digit Aadhar number
- * @returns {Promise<boolean>} True if deleted successfully
+ * Delete a patient by Aadhar (admin/testing only)
+ * @param {string} aadhar - 12‑digit Aadhar number
+ * @returns {Promise<boolean>} True if deleted
  */
 export const deletePatient = async (aadhar) => {
     try {
         const sql = 'DELETE FROM PATIENT_MASTER WHERE AADHAR_NO = ?';
         await executeNonQuery(sql, [aadhar]);
-
         console.log(`✅ Deleted patient with Aadhar ${aadhar}`);
         return true;
     } catch (error) {
@@ -138,10 +139,61 @@ export const getPatientCount = async () => {
     try {
         const sql = 'SELECT COUNT(*) AS TOTAL FROM PATIENT_MASTER';
         const result = await executeQuery(sql);
-
         return result[0].TOTAL;
     } catch (error) {
         console.error('❌ Error in getPatientCount:', error);
+        throw error;
+    }
+};
+
+/**
+ * Get all patients sorted by visit count (most visits first)
+ * @returns {Promise<Array>} Array of patient records
+ */
+export const getPatientsByVisitCount = async () => {
+    try {
+        const sql = 'SELECT * FROM PATIENT_MASTER ORDER BY VISIT_COUNT DESC, AADHAR_NO';
+        return await executeQuery(sql);
+    } catch (error) {
+        console.error('❌ Error in getPatientsByVisitCount:', error);
+        throw error;
+    }
+};
+
+/**
+ * Get patients created today
+ * @returns {Promise<Array>} Array of patient records created today
+ */
+export const getTodaysPatients = async () => {
+    try {
+        const sql = `
+            SELECT * FROM PATIENT_MASTER 
+            WHERE DATE(CREATED_AT) = CURRENT_DATE 
+            ORDER BY CREATED_AT DESC
+        `;
+        return await executeQuery(sql);
+    } catch (error) {
+        console.error('❌ Error in getTodaysPatients:', error);
+        throw error;
+    }
+};
+
+/**
+ * Get patients created within a date range
+ * @param {string} startDate - Start date (YYYY‑MM‑DD)
+ * @param {string} endDate - End date (YYYY‑MM‑DD)
+ * @returns {Promise<Array>} Array of patient records within the range
+ */
+export const getPatientsByDateRange = async (startDate, endDate) => {
+    try {
+        const sql = `
+            SELECT * FROM PATIENT_MASTER 
+            WHERE DATE(CREATED_AT) BETWEEN ? AND ?
+            ORDER BY CREATED_AT DESC
+        `;
+        return await executeQuery(sql, [startDate, endDate]);
+    } catch (error) {
+        console.error('❌ Error in getPatientsByDateRange:', error);
         throw error;
     }
 };

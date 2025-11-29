@@ -1,30 +1,23 @@
 import { useState } from 'react';
 
 export default function SearchPatient({ onSearch }) {
-    const [aadhar, setAadhar] = useState('');
+    const [patientId, setPatientId] = useState('');
     const [error, setError] = useState('');
 
     const handleInputChange = (e) => {
         const value = e.target.value.replace(/\D/g, ''); // Only digits
-        if (value.length <= 12) {
-            setAadhar(value);
-            setError('');
-        }
+        setPatientId(value);
+        setError('');
     };
 
     const handleSearch = () => {
-        if (!aadhar) {
-            setError('Please enter an Aadhar number');
-            return;
-        }
-
-        if (aadhar.length !== 12) {
-            setError('Aadhar number must be exactly 12 digits');
+        if (!patientId) {
+            setError('Please enter a Patient ID');
             return;
         }
 
         setError('');
-        onSearch(aadhar);
+        onSearch(patientId);
     };
 
     const handleKeyPress = (e) => {
@@ -35,26 +28,22 @@ export default function SearchPatient({ onSearch }) {
 
     return (
         <div className="search-patient bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">🔍 Search Patient by Aadhar</h2>
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">🔍 Search Patient by ID</h2>
 
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="aadhar-input" className="block text-sm font-medium text-gray-700 mb-2">
-                        Aadhar Number (12 digits)
+                    <label htmlFor="patient-id-input" className="block text-sm font-medium text-gray-700 mb-2">
+                        Patient ID
                     </label>
                     <input
-                        id="aadhar-input"
+                        id="patient-id-input"
                         type="text"
-                        value={aadhar}
+                        value={patientId}
                         onChange={handleInputChange}
                         onKeyPress={handleKeyPress}
-                        placeholder="Enter 12-digit Aadhar number"
-                        maxLength="12"
+                        placeholder="Enter Patient ID"
                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg tracking-wider"
                     />
-                    <p className="text-sm text-gray-500 mt-1">
-                        {aadhar.length}/12 digits
-                    </p>
                 </div>
 
                 {error && (
@@ -65,10 +54,10 @@ export default function SearchPatient({ onSearch }) {
 
                 <button
                     onClick={handleSearch}
-                    disabled={aadhar.length !== 12}
-                    className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all ${aadhar.length !== 12
-                            ? 'bg-gray-300 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-md hover:shadow-lg'
+                    disabled={!patientId}
+                    className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all ${!patientId
+                        ? 'bg-gray-300 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-md hover:shadow-lg'
                         }`}
                 >
                     Search Patient

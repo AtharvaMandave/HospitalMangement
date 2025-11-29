@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import SearchPatient from '../components/SearchPatient';
 import PatientInfo from '../components/PatientInfo';
-import { getPatientByAadhar } from '../services/api';
+import { getPatientById } from '../services/api';
 
 export default function SearchPage() {
     const [patient, setPatient] = useState(null);
@@ -9,14 +9,14 @@ export default function SearchPage() {
     const [error, setError] = useState(null);
     const [searched, setSearched] = useState(false);
 
-    const handleSearch = async (aadhar) => {
+    const handleSearch = async (id) => {
         setLoading(true);
         setError(null);
         setPatient(null);
         setSearched(false);
 
         try {
-            const response = await getPatientByAadhar(aadhar);
+            const response = await getPatientById(id);
 
             if (response.data.success && response.data.data) {
                 setPatient(response.data.data);
@@ -27,7 +27,7 @@ export default function SearchPage() {
         } catch (err) {
             console.error('Search error:', err);
             if (err.response?.status === 404) {
-                setError('No patient found with this Aadhar number');
+                setError('No patient found with this Patient ID');
             } else {
                 setError(err.response?.data?.error?.message || err.response?.data?.message || 'Failed to search. Please try again.');
             }
@@ -46,7 +46,7 @@ export default function SearchPage() {
                         🔍 Search Patient Records
                     </h1>
                     <p className="text-lg text-gray-600">
-                        Find patient details and visit history using Aadhar number
+                        Find patient details and visit history using Patient ID
                     </p>
                 </div>
 
@@ -75,7 +75,7 @@ export default function SearchPage() {
                         <h3 className="text-2xl font-bold text-gray-800 mb-2">Patient Not Found</h3>
                         <p className="text-gray-600 mb-4">{error}</p>
                         <p className="text-sm text-gray-500">
-                            Please verify the Aadhar number and try again
+                            Please verify the Patient ID and try again
                         </p>
                     </div>
                 )}
@@ -91,7 +91,7 @@ export default function SearchPage() {
                         <svg className="w-32 h-32 text-gray-300 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                         </svg>
-                        <p className="text-gray-500 text-lg">Enter an Aadhar number above to search</p>
+                        <p className="text-gray-500 text-lg">Enter a Patient ID above to search</p>
                     </div>
                 )}
             </div>

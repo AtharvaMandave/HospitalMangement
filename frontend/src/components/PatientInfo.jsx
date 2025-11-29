@@ -16,15 +16,17 @@ export default function PatientInfo({ patient }) {
                 </div>
                 <div>
                     <h2 className="text-3xl font-bold text-gray-800">{patient.NAME}</h2>
-                    <p className="text-sm text-gray-500">Aadhar: {patient.AADHAR_NO}</p>
+                    <p className="text-sm text-gray-500">Patient ID: {String(patient.PATIENT_ID).padStart(5, '0')} | Aadhar: {patient.AADHAR_NO}</p>
                 </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <InfoCard icon="🆔" label="Patient ID" value={String(patient.PATIENT_ID).padStart(5, '0')} />
+                <InfoCard icon="📇" label="Aadhar Number" value={patient.AADHAR_NO} />
                 <InfoCard icon="👤" label="Age" value={patient.AGE || 'N/A'} />
                 <InfoCard icon="⚧" label="Gender" value={patient.GENDER === 'M' ? 'Male' : patient.GENDER === 'F' ? 'Female' : 'Other'} />
                 <InfoCard icon="📧" label="Phone" value={patient.PHONE || 'N/A'} />
-                <InfoCard icon="📅" label="Registered" value={patient.CREATED_AT ? new Date(patient.CREATED_AT).toLocaleDateString() : 'N/A'} />
+                <InfoCard icon="🏥" label="Total Visits" value={patient.VISIT_COUNT || departments.length} />
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow-sm mb-6">

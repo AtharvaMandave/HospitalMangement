@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import Home from './pages/Home';
 import UploadPage from './pages/UploadPage';
 import SearchPage from './pages/SearchPage';
+import ManualEntryPage from './pages/ManualEntryPage';
+import PatientsListPage from './pages/PatientsListPage';
 import './App.css';
 
 function App() {
@@ -13,6 +15,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/manual-entry" element={<ManualEntryPage />} />
+          <Route path="/patients" element={<PatientsListPage />} />
         </Routes>
       </div>
     </Router>
@@ -54,6 +58,12 @@ function Navigation() {
             <NavLink to="/upload" active={isActive('/upload')}>
               📤 Upload
             </NavLink>
+            <NavLink to="/manual-entry" active={isActive('/manual-entry')}>
+              📝 Manual Entry
+            </NavLink>
+            <NavLink to="/patients" active={isActive('/patients')}>
+              👥 View All
+            </NavLink>
             <NavLink to="/search" active={isActive('/search')}>
               🔍 Search
             </NavLink>
@@ -69,8 +79,8 @@ function NavLink({ to, children, active }) {
     <Link
       to={to}
       className={`px-4 py-2 rounded-lg font-medium transition-all ${active
-          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md'
-          : 'text-gray-600 hover:bg-gray-100'
+        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md'
+        : 'text-gray-600 hover:bg-gray-100'
         }`}
     >
       {children}

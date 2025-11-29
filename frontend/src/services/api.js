@@ -47,6 +47,15 @@ export const getPatientByAadhar = async (aadhar) => {
 };
 
 /**
+ * Get patient details by Patient ID
+ * @param {string} id - Patient ID
+ * @returns {Promise} API response
+ */
+export const getPatientById = async (id) => {
+    return await api.get(`/patient/id/${id}`);
+};
+
+/**
  * Get all patients
  * @returns {Promise} API response
  */
