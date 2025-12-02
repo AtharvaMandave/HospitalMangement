@@ -1,91 +1,122 @@
 import { Link } from 'react-router-dom';
+import {
+    Upload,
+    Search,
+    Users,
+    Activity,
+    ArrowRight,
+    Database,
+    ShieldCheck,
+    Zap
+} from 'lucide-react';
 
 export default function Home() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-            <div className="container mx-auto px-4 py-16">
-                {/* Hero Section */}
-                <div className="text-center mb-16">
-                    <div className="inline-block mb-6">
-                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
-                            <svg className="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                                <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
+        <div className="min-h-screen bg-slate-50">
+            {/* Hero Section */}
+            <div className="relative overflow-hidden bg-white">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-70"></div>
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+
+                <div className="relative container mx-auto px-4 pt-20 pb-32">
+                    <div className="text-center max-w-4xl mx-auto">
+                        <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-100 rounded-full px-4 py-1.5 mb-8 shadow-sm">
+                            <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
+                            <span className="text-sm font-medium text-blue-900">System Online & Operational</span>
+                        </div>
+
+                        <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 tracking-tight leading-tight">
+                            Next-Gen Patient <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                                Visit Tracking
+                            </span>
+                        </h1>
+
+                        <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                            Streamline hospital operations with our advanced deduplication engine.
+                            Manage patient visits, history, and queues with enterprise-grade efficiency.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <Link
+                                to="/search"
+                                className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:-translate-y-1"
+                            >
+                                <Search size={20} />
+                                <span>Find Patient</span>
+                            </Link>
+                            <Link
+                                to="/upload"
+                                className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-xl font-semibold hover:bg-slate-50 transition-all hover:-translate-y-1 shadow-sm"
+                            >
+                                <Upload size={20} />
+                                <span>Upload Records</span>
+                            </Link>
                         </div>
                     </div>
-
-                    <h1 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-4">
-                        Hospital Patient Tracking System
-                    </h1>
-                    <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-2">
-                        Efficient Patient Visit Management with Aadhar-Based Deduplication
-                    </p>
-                    <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-                        Track patient visits, eliminate duplicates, and maintain comprehensive medical visit history
-                    </p>
                 </div>
 
-                {/* Features Grid */}
-                <div className="grid md:grid-cols-3 gap-8 mb-16">
+                {/* Decorative Elements */}
+                <div className="absolute -bottom-1 left-0 right-0 h-24 bg-gradient-to-t from-slate-50 to-transparent"></div>
+            </div>
+
+            {/* Features Grid */}
+            <div className="container mx-auto px-4 py-20">
+                <div className="grid md:grid-cols-3 gap-8 mb-20">
                     <FeatureCard
-                        icon="📤"
-                        title="Bulk Upload"
-                        description="Upload CSV/TXT files containing daily patient visit records with automatic processing"
+                        icon={<Database className="text-blue-600" size={32} />}
+                        title="Bulk Data Processing"
+                        description="Ingest thousands of patient records in seconds via CSV/TXT. Our engine handles the heavy lifting."
                     />
                     <FeatureCard
-                        icon="🔄"
+                        icon={<ShieldCheck className="text-indigo-600" size={32} />}
                         title="Smart Deduplication"
-                        description="Automatically detects existing patients using Aadhar and updates visit history"
+                        description="Never create duplicate records again. We automatically match and merge patient history using Aadhar."
                     />
                     <FeatureCard
-                        icon="🔍"
-                        title="Quick Search"
-                        description="Search for any patient instantly using their 12-digit Aadhar number"
+                        icon={<Zap className="text-purple-600" size={32} />}
+                        title="Real-Time Queue"
+                        description="Live, socket-powered queue management system for instant updates across the entire hospital."
                     />
                 </div>
 
-                {/* Action Cards */}
-                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <ActionCard
-                        to="/upload"
-                        icon="📁"
-                        title="Upload Patient Records"
-                        description="Import daily visit records from CSV or text files"
-                        bgGradient="from-blue-500 to-blue-600"
-                        hoverGradient="from-blue-600 to-blue-700"
-                    />
-                    <ActionCard
-                        to="/search"
-                        icon="🔎"
-                        title="Search Patient"
-                        description="Find patient details and visit history by Aadhar number"
-                        bgGradient="from-purple-500 to-purple-600"
-                        hoverGradient="from-purple-600 to-purple-700"
-                    />
-                </div>
+                {/* Quick Actions */}
+                <div className="max-w-5xl mx-auto">
+                    <div className="flex items-center justify-between mb-8">
+                        <h2 className="text-2xl font-bold text-slate-900">Quick Actions</h2>
+                        <span className="text-sm text-slate-500">Select a module to begin</span>
+                    </div>
 
-                {/* Info Section */}
-                <div className="mt-16 bg-white rounded-2xl shadow-xl p-8 max-w-4xl mx-auto">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4">📋 How It Works</h2>
-                    <ol className="space-y-4 text-gray-600">
-                        <li className="flex items-start">
-                            <span className="font-bold text-blue-600 mr-3 text-xl">1.</span>
-                            <span><strong>Upload Daily Records:</strong> Import patient visit data in CSV or TXT format</span>
-                        </li>
-                        <li className="flex items-start">
-                            <span className="font-bold text-blue-600 mr-3 text-xl">2.</span>
-                            <span><strong>Automatic Processing:</strong> System identifies new patients and existing ones using Aadhar number</span>
-                        </li>
-                        <li className="flex items-start">
-                            <span className="font-bold text-blue-600 mr-3 text-xl">3.</span>
-                            <span><strong>Smart Updates:</strong> New patients are added; existing patients' department visit history is updated</span>
-                        </li>
-                        <li className="flex items-start">
-                            <span className="font-bold text-blue-600 mr-3 text-xl">4.</span>
-                            <span><strong>Easy Retrieval:</strong> Search any patient record instantly using Aadhar number</span>
-                        </li>
-                    </ol>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <ActionCard
+                            to="/upload"
+                            icon={<Upload className="text-white" size={32} />}
+                            title="Upload Records"
+                            description="Import daily visit logs"
+                            color="bg-blue-600"
+                        />
+                        <ActionCard
+                            to="/search"
+                            icon={<Search className="text-white" size={32} />}
+                            title="Patient Search"
+                            description="Find and manage records"
+                            color="bg-indigo-600"
+                        />
+                        <ActionCard
+                            to="/queue-management"
+                            icon={<Activity className="text-white" size={32} />}
+                            title="Queue Management"
+                            description="Doctor's control panel"
+                            color="bg-purple-600"
+                        />
+                        <ActionCard
+                            to="/queue"
+                            icon={<Users className="text-white" size={32} />}
+                            title="Live Display"
+                            description="Public waiting room board"
+                            color="bg-slate-800"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -94,30 +125,36 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }) {
     return (
-        <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
-            <div className="text-5xl mb-4">{icon}</div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
-            <p className="text-gray-600">{description}</p>
+        <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+            <div className="bg-slate-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
+                {icon}
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
+            <p className="text-slate-600 leading-relaxed">{description}</p>
         </div>
     );
 }
 
-function ActionCard({ to, icon, title, description, bgGradient, hoverGradient }) {
+function ActionCard({ to, icon, title, description, color }) {
     return (
         <Link
             to={to}
-            className={`block bg-gradient-to-br ${bgGradient} hover:${hoverGradient} rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 group`}
+            className={`${color} relative overflow-hidden rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 shadow-xl group`}
         >
-            <div className="text-6xl mb-4">{icon}</div>
-            <h3 className="text-2xl font-bold text-white mb-3 group-hover:scale-105 transition-transform">
-                {title}
-            </h3>
-            <p className="text-blue-100">{description}</p>
-            <div className="mt-4 flex items-center text-white font-semibold">
-                <span>Get Started</span>
-                <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all"></div>
+
+            <div className="relative z-10 flex items-start justify-between">
+                <div>
+                    <div className="bg-white/20 w-14 h-14 rounded-xl flex items-center justify-center mb-6 backdrop-blur-sm">
+                        {icon}
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
+                    <p className="text-white/80">{description}</p>
+                </div>
+
+                <div className="bg-white/20 p-2 rounded-full opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all">
+                    <ArrowRight className="text-white" size={20} />
+                </div>
             </div>
         </Link>
     );

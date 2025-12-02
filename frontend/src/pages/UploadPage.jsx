@@ -1,15 +1,19 @@
+import { Upload, Info, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 import FileUpload from '../components/FileUpload';
 
 export default function UploadPage() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12">
+        <div className="min-h-screen bg-slate-50 py-12">
             <div className="container mx-auto px-4 max-w-4xl">
                 {/* Page Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-3">
-                        📤 Upload Patient Visit Records
+                <div className="text-center mb-10">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl mb-4 text-blue-600">
+                        <Upload size={32} />
+                    </div>
+                    <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                        Upload Patient Records
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-slate-500">
                         Import daily patient visit data from CSV or TXT files
                     </p>
                 </div>
@@ -18,19 +22,22 @@ export default function UploadPage() {
                 <FileUpload />
 
                 {/* Instructions */}
-                <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <svg className="w-6 h-6 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                        File Format Guidelines
-                    </h2>
+                <div className="mt-10 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-slate-50 p-6 border-b border-slate-100">
+                        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <Info className="text-blue-600" size={20} />
+                            File Format Guidelines
+                        </h2>
+                    </div>
 
-                    <div className="space-y-4 text-gray-600">
+                    <div className="p-6 space-y-8">
                         <div>
-                            <h3 className="font-semibold text-gray-800 mb-2">CSV Format Example:</h3>
-                            <div className="bg-gray-50 p-4 rounded-lg overflow-x-auto">
-                                <pre className="text-sm">
+                            <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                                <FileText size={18} className="text-slate-400" />
+                                CSV Format Example
+                            </h3>
+                            <div className="bg-slate-900 rounded-xl p-4 overflow-x-auto shadow-inner">
+                                <pre className="text-sm text-blue-300 font-mono">
                                     {`AADHAR_NO,NAME,AGE,GENDER,ADDRESS,PHONE,DEPARTMENT_VISITED
 123456789012,John Doe,45,M,123 Main St,9876543210,Heart
 234567890123,Jane Smith,32,F,456 Park Ave,9876543211,Fracture`}
@@ -39,21 +46,30 @@ export default function UploadPage() {
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-gray-800 mb-2">Required Fields:</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li><strong>AADHAR_NO:</strong> 12-digit Aadhar number (required)</li>
-                                <li><strong>NAME:</strong> Patient name (required)</li>
-                                <li><strong>DEPARTMENT_VISITED:</strong> Department name (required)</li>
-                                <li><strong>AGE:</strong> Patient age (optional)</li>
-                                <li><strong>GENDER:</strong> M/F/O (optional)</li>
-                                <li><strong>ADDRESS:</strong> Patient address (optional)</li>
-                                <li><strong>PHONE:</strong> Contact number (optional)</li>
-                            </ul>
+                            <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                                <CheckCircle size={18} className="text-slate-400" />
+                                Required Fields
+                            </h3>
+                            <div className="grid sm:grid-cols-2 gap-4">
+                                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <span className="font-mono text-sm font-bold text-slate-700">AADHAR_NO</span>
+                                    <p className="text-xs text-slate-500 mt-1">12-digit unique identifier</p>
+                                </div>
+                                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <span className="font-mono text-sm font-bold text-slate-700">NAME</span>
+                                    <p className="text-xs text-slate-500 mt-1">Full name of patient</p>
+                                </div>
+                                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <span className="font-mono text-sm font-bold text-slate-700">DEPARTMENT_VISITED</span>
+                                    <p className="text-xs text-slate-500 mt-1">Department name</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                            <p className="text-sm">
-                                <strong>💡 Note:</strong> If a patient with the same Aadhar already exists,
+                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex gap-3">
+                            <AlertCircle className="text-blue-600 shrink-0" size={20} />
+                            <p className="text-sm text-blue-800">
+                                <strong>Smart Deduplication:</strong> If a patient with the same Aadhar already exists,
                                 the system will automatically update their department visit history instead of creating a duplicate record.
                             </p>
                         </div>

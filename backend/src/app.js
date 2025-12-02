@@ -2,6 +2,8 @@ import express from "express";
 import cookieparser from 'cookie-parser'
 import cors from 'cors'
 import patientRoutes from './routes/patient.routes.js';
+import queueRoutes from './routes/queue.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 
 const app = express();
@@ -24,6 +26,8 @@ app.use(cookieparser())
 
 // API Routes
 app.use('/api', patientRoutes);
+app.use('/api/queue', queueRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {

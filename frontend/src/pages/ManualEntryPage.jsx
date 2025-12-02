@@ -1,5 +1,19 @@
 import { useState } from 'react';
 import axios from 'axios';
+import {
+    FileText,
+    Plus,
+    Save,
+    Trash2,
+    Clipboard,
+    User,
+    CreditCard,
+    Phone,
+    MapPin,
+    Loader2,
+    CheckCircle,
+    AlertCircle
+} from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:4000/api';
 
@@ -96,9 +110,22 @@ function ManualEntryPage() {
             }
         } catch (error) {
             console.error('Error saving records:', error);
+            console.error('Error response:', error.response?.data);
+
+            let errorMessage = 'Failed to save records. Please try again.';
+
+            if (error.response?.data?.validationErrors) {
+                const validationErrors = error.response.data.validationErrors;
+                errorMessage = 'Validation failed:\n' + validationErrors.map(ve =>
+                    `• ${ve.name || 'Patient'}: ${ve.errors.join(', ')}`
+                ).join('\n');
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+
             setMessage({
                 type: 'error',
-                text: error.response?.data?.message || 'Failed to save records. Please try again.'
+                text: errorMessage
             });
         } finally {
             setLoading(false);
@@ -106,66 +133,85 @@ function ManualEntryPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
+        <div className="min-h-screen bg-slate-50 py-12 px-4">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                        📝 Manual Patient Entry
+                <div className="text-center mb-10">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl mb-4 text-blue-600">
+                        <FileText size={32} />
+                    </div>
+                    <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                        Manual Patient Entry
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-lg text-slate-500">
                         Fill in patient details and add multiple records before saving
                     </p>
                 </div>
 
                 {/* Message Display */}
                 {message && (
-                    <div className={`mb-6 p-4 rounded-lg ${message.type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' :
-                        message.type === 'error' ? 'bg-red-100 text-red-800 border border-red-300' :
-                            'bg-blue-100 text-blue-800 border border-blue-300'
+                    <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
+                        message.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' :
+                            'bg-blue-50 text-blue-800 border border-blue-200'
                         }`}>
+                        {message.type === 'success' ? <CheckCircle size={20} /> :
+                            message.type === 'error' ? <AlertCircle size={20} /> :
+                                <CheckCircle size={20} />}
                         {message.text}
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Form Section */}
-                    <div className="bg-white rounded-lg shadow-lg p-6">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6">Patient Information</h2>
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
+                        <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <User size={20} className="text-blue-600" />
+                            Patient Information
+                        </h2>
 
-                        <form onSubmit={handleAddToList} className="space-y-4">
+                        <form onSubmit={handleAddToList} className="space-y-5">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
                                     Aadhar Number <span className="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    name="AADHAR_NO"
-                                    value={formData.AADHAR_NO}
-                                    onChange={handleInputChange}
-                                    placeholder="12-digit Aadhar number"
-                                    maxLength="12"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                        <CreditCard size={18} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        name="AADHAR_NO"
+                                        value={formData.AADHAR_NO}
+                                        onChange={handleInputChange}
+                                        placeholder="12-digit Aadhar number"
+                                        maxLength="12"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
                                     Name <span className="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    name="NAME"
-                                    value={formData.NAME}
-                                    onChange={handleInputChange}
-                                    placeholder="Patient name"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                        <User size={18} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        name="NAME"
+                                        value={formData.NAME}
+                                        onChange={handleInputChange}
+                                        placeholder="Patient name"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-5">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">
                                         Age
                                     </label>
                                     <input
@@ -174,19 +220,19 @@ function ManualEntryPage() {
                                         value={formData.AGE}
                                         onChange={handleInputChange}
                                         placeholder="Age"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">
                                         Gender
                                     </label>
                                     <select
                                         name="GENDER"
                                         value={formData.GENDER}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                     >
                                         <option value="">Select</option>
                                         <option value="M">Male</option>
@@ -197,35 +243,45 @@ function ManualEntryPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
                                     Address
                                 </label>
-                                <textarea
-                                    name="ADDRESS"
-                                    value={formData.ADDRESS}
-                                    onChange={handleInputChange}
-                                    placeholder="Patient address"
-                                    rows="2"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
+                                <div className="relative">
+                                    <div className="absolute top-3 left-3 pointer-events-none text-slate-400">
+                                        <MapPin size={18} />
+                                    </div>
+                                    <textarea
+                                        name="ADDRESS"
+                                        value={formData.ADDRESS}
+                                        onChange={handleInputChange}
+                                        placeholder="Patient address"
+                                        rows="2"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
                                     Phone
                                 </label>
-                                <input
-                                    type="tel"
-                                    name="PHONE"
-                                    value={formData.PHONE}
-                                    onChange={handleInputChange}
-                                    placeholder="Contact number"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                        <Phone size={18} />
+                                    </div>
+                                    <input
+                                        type="tel"
+                                        name="PHONE"
+                                        value={formData.PHONE}
+                                        onChange={handleInputChange}
+                                        placeholder="Contact number"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    />
+                                </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
                                     Department Visited <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -234,88 +290,78 @@ function ManualEntryPage() {
                                     value={formData.DEPARTMENT_VISITED}
                                     onChange={handleInputChange}
                                     placeholder="e.g., Cardiology"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 />
                             </div>
 
                             <button
                                 type="submit"
-                                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2"
                             >
-                                ➕ Add to List
+                                <Plus size={20} />
+                                Add to List
                             </button>
                         </form>
                     </div>
 
                     {/* Patient List Section */}
-                    <div className="bg-white rounded-lg shadow-lg p-6">
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8 flex flex-col h-full">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-gray-800">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <Clipboard size={20} className="text-purple-600" />
                                 Records to Save ({patientList.length})
                             </h2>
                             {patientList.length > 0 && (
                                 <button
                                     onClick={handleSaveAll}
                                     disabled={loading}
-                                    className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-all shadow-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {loading ? '⏳ Saving...' : '💾 Save All Records'}
+                                    {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                                    {loading ? 'Saving...' : 'Save All'}
                                 </button>
                             )}
                         </div>
 
                         {patientList.length === 0 ? (
-                            <div className="text-center py-12 text-gray-400">
-                                <svg className="w-20 h-20 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                                    <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm0 3a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clipRule="evenodd" />
-                                </svg>
-                                <p className="text-lg">No records added yet</p>
+                            <div className="flex-1 flex flex-col items-center justify-center text-center py-12 text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
+                                <Clipboard size={48} className="mb-4 opacity-50" />
+                                <p className="text-lg font-medium">No records added yet</p>
                                 <p className="text-sm">Fill the form and click "Add to List"</p>
                             </div>
                         ) : (
-                            <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                            <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1">
                                 {patientList.map((patient) => (
                                     <div
                                         key={patient.id}
-                                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                                        className="bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all group"
                                     >
                                         <div className="flex justify-between items-start">
                                             <div className="flex-1">
-                                                <h3 className="font-semibold text-lg text-gray-800">
+                                                <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
                                                     {patient.NAME}
+                                                    <span className="text-xs font-normal bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100">
+                                                        {patient.DEPARTMENT_VISITED}
+                                                    </span>
                                                 </h3>
-                                                <div className="grid grid-cols-2 gap-2 mt-2 text-sm text-gray-600">
-                                                    <div>
-                                                        <span className="font-medium">Aadhar:</span> {patient.AADHAR_NO}
+                                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-sm text-slate-500">
+                                                    <div className="flex items-center gap-1">
+                                                        <CreditCard size={12} /> {patient.AADHAR_NO}
                                                     </div>
-                                                    <div>
-                                                        <span className="font-medium">Age:</span> {patient.AGE || 'N/A'}
+                                                    <div className="flex items-center gap-1">
+                                                        <User size={12} /> {patient.AGE || 'N/A'} • {patient.GENDER || 'N/A'}
                                                     </div>
-                                                    <div>
-                                                        <span className="font-medium">Gender:</span> {patient.GENDER || 'N/A'}
+                                                    <div className="flex items-center gap-1 col-span-2">
+                                                        <Phone size={12} /> {patient.PHONE || 'N/A'}
                                                     </div>
-                                                    <div>
-                                                        <span className="font-medium">Phone:</span> {patient.PHONE || 'N/A'}
-                                                    </div>
-                                                    <div className="col-span-2">
-                                                        <span className="font-medium">Department:</span> {patient.DEPARTMENT_VISITED}
-                                                    </div>
-                                                    {patient.ADDRESS && (
-                                                        <div className="col-span-2">
-                                                            <span className="font-medium">Address:</span> {patient.ADDRESS}
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </div>
                                             <button
                                                 onClick={() => handleRemoveFromList(patient.id)}
-                                                className="ml-4 text-red-500 hover:text-red-700 transition-colors"
+                                                className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50"
                                                 title="Remove"
                                             >
-                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                </svg>
+                                                <Trash2 size={18} />
                                             </button>
                                         </div>
                                     </div>

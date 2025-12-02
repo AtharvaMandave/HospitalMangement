@@ -123,6 +123,7 @@ export const addBulkVisits = async (req, res, next) => {
         }
 
         console.log(`📝 Processing bulk manual entry: ${patients.length} records`);
+        console.log('📋 Raw patient data:', JSON.stringify(patients, null, 2));
 
         // Validate and clean data before processing
         const validPatients = [];
@@ -139,23 +140,31 @@ export const addBulkVisits = async (req, res, next) => {
                 DEPARTMENT_VISITED: p.DEPARTMENT_VISITED || p.department
             };
 
+            console.log(`🔍 Validating patient ${index}:`, patientData);
+
             const validation = validatePatientData(patientData);
             if (validation.valid) {
                 validPatients.push(patientData);
+                console.log(`✅ Patient ${index} is valid`);
             } else {
+                console.log(`❌ Patient ${index} validation failed:`, validation.errors);
                 validationErrors.push({
                     index,
+                    name: patientData.NAME,
                     aadhar: patientData.AADHAR_NO,
                     errors: validation.errors
                 });
             }
         });
 
+        console.log(`📊 Validation complete: ${validPatients.length} valid, ${validationErrors.length} invalid`);
+
         if (validPatients.length === 0) {
+            console.log('❌ All records failed validation:', validationErrors);
             return res.status(400).json({
                 success: false,
-                message: 'No valid patient records found',
-                errors: validationErrors
+                message: 'No valid patient records found. Please check the validation errors below.',
+                validationErrors: validationErrors
             });
         }
 
@@ -245,6 +254,64 @@ export const addVisit = async (req, res, next) => {
 };
 
 /**
+ * Get patient by Aadhar number
+ * GET /api/patient/:aadhar
+ */
+export const getPatientByAadhar = async (req, res, next) => {
+    try {
+        const { aadhar } = req.params;
+        const patient = await PatientModel.findByAadhar(aadhar);
+
+        if (!patient) {
+            return res.status(404).json({
+                success: false,
+                message: 'Patient not found with this Aadhar number'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: patient
+        });
+    } catch (error) {
+        console.error('❌ Error in getPatientByAadhar:', error);
+        next(error);
+    }
+};
+
+/**
+ * Get patient by Patient ID
+ * GET /api/patient/id/:id
+ */
+export const getPatientById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const patient = await PatientModel.findByPatientId(id);
+
+        if (!patient) {
+            return res.status(404).json({
+                success: false,
+                message: 'Patient not found with this Patient ID'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: patient
+        });
+    } catch (error) {
+        console.error('❌ Error in getPatientById:', error);
+        next(error);
+    }
+};
+
+/**
+ * Get all patients
+ * GET /api/allPatients
+ */
+export const getAllPatients = async (req, res, next) => {
+    try {
+        const patients = await PatientModel.getAllPatients();
 
         res.status(200).json({
             success: true,

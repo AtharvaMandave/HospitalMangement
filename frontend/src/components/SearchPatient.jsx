@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Search, CreditCard, AlertCircle } from 'lucide-react';
 
 export default function SearchPatient({ onSearch }) {
     const [patientId, setPatientId] = useState('');
@@ -27,39 +28,49 @@ export default function SearchPatient({ onSearch }) {
     };
 
     return (
-        <div className="search-patient bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">🔍 Search Patient by ID</h2>
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
+            <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+                <Search className="text-blue-600" size={24} />
+                Search Patient by ID
+            </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <div>
-                    <label htmlFor="patient-id-input" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="patient-id-input" className="block text-sm font-bold text-slate-700 mb-2">
                         Patient ID
                     </label>
-                    <input
-                        id="patient-id-input"
-                        type="text"
-                        value={patientId}
-                        onChange={handleInputChange}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Enter Patient ID"
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg tracking-wider"
-                    />
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <CreditCard size={20} />
+                        </div>
+                        <input
+                            id="patient-id-input"
+                            type="text"
+                            value={patientId}
+                            onChange={handleInputChange}
+                            onKeyPress={handleKeyPress}
+                            placeholder="Enter Patient ID (e.g., 10001)"
+                            className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-lg font-mono tracking-wider transition-all"
+                        />
+                    </div>
                 </div>
 
                 {error && (
-                    <div className="p-3 bg-red-50 border-l-4 border-red-500 rounded">
-                        <p className="text-red-700 text-sm">{error}</p>
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2 text-red-700">
+                        <AlertCircle size={18} />
+                        <p className="text-sm font-medium">{error}</p>
                     </div>
                 )}
 
                 <button
                     onClick={handleSearch}
                     disabled={!patientId}
-                    className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all ${!patientId
-                        ? 'bg-gray-300 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-md hover:shadow-lg'
+                    className={`w-full py-4 px-6 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 ${!patientId
+                            ? 'bg-slate-300 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5'
                         }`}
                 >
+                    <Search size={20} />
                     Search Patient
                 </button>
             </div>
